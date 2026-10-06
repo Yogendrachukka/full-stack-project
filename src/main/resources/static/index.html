@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FoodBridge — Rescue Food. Feed People.</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">Food<span>Bridge</span></a>
+  <div class="navlinks">
+    <a href="#how">How it works</a><a href="#roles">Community</a><a href="#donations">Find food</a>
+  </div>
+  <div class="actions">
+    <a class="login" href="/login.html">Log in</a>
+    <a class="donate" href="/signup.html">Donate food</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div>
+    <div class="badge">● Making every meal count</div>
+    <h1>Rescue food.<br><span>Feed people.</span></h1>
+    <p>FoodBridge connects surplus food from homes, restaurants, hotels and events with NGOs, volunteers and communities that need it.</p>
+    <div class="hero-buttons">
+      <a class="primary" href="/signup.html">🍱 Donate surplus food</a>
+      <a class="secondary" href="#donations">Find available food →</a>
+    </div>
+  </div>
+  <div class="visual">
+    <div class="orb"></div>
+    <div class="float-card top"><b id="todayMeals">24</b><small>meals available</small></div>
+    <div class="food-card">
+      <div class="food-img">🍛</div>
+      <span class="available">AVAILABLE</span>
+      <h3>Fresh Meal Boxes</h3>
+      <p>📍 Gudur · 1.8 km away</p>
+      <div class="row"><b>🍱 35 meals</b><a href="/login.html">Claim</a></div>
+    </div>
+    <div class="float-card bottom"><b id="rescued">1,284 kg</b><small>food rescued</small></div>
+  </div>
+</header>
+
+<section class="impact">
+  <div><b id="users">0</b><small>registered users</small></div>
+  <div><b id="available">0</b><small>available donations</small></div>
+  <div><b id="claimed">0</b><small>claimed donations</small></div>
+  <div><b id="completed">0</b><small>completed rescues</small></div>
+</section>
+
+<section id="how" class="section">
+  <label>Simple process</label>
+  <h2>From surplus to someone who needs it.</h2>
+  <p class="lead">A simple recovery workflow that makes food donation fast, trackable and community-driven.</p>
+  <div class="grid four">
+    <article><i>📦</i><small>STEP 01</small><h3>Post surplus</h3><p>Add food type, quantity, location and pickup time.</p></article>
+    <article><i>📍</i><small>STEP 02</small><h3>Get matched</h3><p>Nearby recipients can discover your available food.</p></article>
+    <article><i>🚴</i><small>STEP 03</small><h3>Pickup</h3><p>Coordinate collection and move food before it is wasted.</p></article>
+    <article><i>❤️</i><small>STEP 04</small><h3>Make impact</h3><p>Track meals rescued and donations completed.</p></article>
+  </div>
+</section>
+
+<section id="roles" class="section soft">
+  <label>One platform</label><h2>Everyone can make a difference.</h2>
+  <div class="grid three">
+    <article><i>🍱</i><h3>Food Donors</h3><p>Restaurants, hotels, households and event organizers can list safe surplus food.</p><a href="/signup.html">Start donating →</a></article>
+    <article><i>🤝</i><h3>NGOs & Communities</h3><p>Discover nearby donations and coordinate food collection for people in need.</p><a href="/signup.html">Join as NGO →</a></article>
+    <article><i>🚴</i><h3>Volunteers</h3><p>Help collect and deliver food while contributing directly to your local community.</p><a href="/signup.html">Become a volunteer →</a></article>
+  </div>
+</section>
+
+<section id="donations" class="section">
+  <label>Live platform data</label><h2>Food waiting to be rescued.</h2>
+  <div id="donationGrid" class="grid three"></div>
+</section>
+
+<section class="cta"><h2>Have extra food?</h2><p>Don't let good food become waste. Post your surplus and help turn one extra meal into someone's next meal.</p><a href="/signup.html">Donate food now →</a></section>
+
+<footer><div><strong>Food<span>Bridge</span></strong><p>Connecting surplus food with people who need it.</p></div><div><a href="#how">How it works</a><a href="/login.html">Login</a><a href="/signup.html">Register</a></div><div><a href="#roles">Donors</a><a href="#roles">NGOs</a><a href="#roles">Volunteers</a></div></footer>
+
+<script>
+async function loadStats(){
+  try{
+    const r=await fetch('/api/stats'); const s=await r.json();
+    users.textContent=s.donorsAndUsers; available.textContent=s.availableDonations;
+    claimed.textContent=s.claimedDonations; completed.textContent=s.completedDonations;
+  }catch(e){}
+}
+async function loadDonations(){
+  const box=document.getElementById('donationGrid');
+  try{
+    const r=await fetch('/api/donations'); const data=await r.json();
+    if(!data.length){box.innerHTML='<div class="empty">No live donations yet. Be the first donor.</div>';return;}
+    box.innerHTML=data.slice(0,6).map(d=>`
+      <article class="donation">
+        <div class="donation-img">🍱</div>
+        <h3>${escapeHtml(d.foodName)}</h3>
+        <p>${escapeHtml(d.description||'Surplus food available for community pickup.')}</p>
+        <div class="row"><b>📍 ${escapeHtml(d.location||'Local area')}</b><a href="/login.html">Claim</a></div>
+      </article>`).join('');
+  }catch(e){box.innerHTML='<div class="empty">Start the backend to load live donations.</div>';}
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+loadStats(); loadDonations();
+</script>
+</body></html>

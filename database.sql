@@ -1,0 +1,2 @@
+-- Optional sample data. Run after starting the app and registering users.
+-- The application creates tables automatically with JPA.

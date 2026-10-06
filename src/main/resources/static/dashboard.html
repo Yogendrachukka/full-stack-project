@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FoodBridge — Dashboard</title><link rel="stylesheet" href="/dashboard.css"></head>
+<body><nav><a class="logo" href="/">Food<span>Bridge</span></a><button onclick="logout()">Log out</button></nav>
+<main><header><div><small>YOUR COMMUNITY DASHBOARD</small><h1>Make an impact today.</h1><p>Post surplus food or discover donations available nearby.</p></div><a href="#post" class="primary">+ Post donation</a></header>
+<section class="stats"><div><b id="available">0</b><span>Available donations</span></div><div><b id="claimed">0</b><span>Claimed</span></div><div><b id="completed">0</b><span>Completed</span></div></section>
+<section class="panel" id="post"><h2>Post surplus food</h2><form id="donationForm"><input id="foodName" required placeholder="Food name"><input id="quantity" type="number" min="1" required placeholder="Quantity / meals"><input id="location" required placeholder="Pickup location"><input id="pickupTime" placeholder="Pickup time"><textarea id="description" placeholder="Describe the food, preparation time, packaging, etc."></textarea><button>Publish donation</button></form></section>
+<section class="panel"><h2>Available donations</h2><div id="list"></div></section></main>
+<script>
+async function stats(){let r=await fetch('/api/stats'),s=await r.json();available.textContent=s.availableDonations;claimed.textContent=s.claimedDonations;completed.textContent=s.completedDonations}
+async function load(){let r=await fetch('/api/donations'),d=await r.json();list.innerHTML=d.map(x=>`<article><b>${esc(x.foodName)}</b><span>${x.quantity} meals · ${esc(x.location||'Local')}</span><small>${esc(x.description||'')}</small></article>`).join('')||'<p>No available donations.</p>'}
+donationForm.onsubmit=async e=>{e.preventDefault();let r=await fetch('/api/donations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({foodName:foodName.value,quantity:+quantity.value,location:location.value,pickupTime:pickupTime.value,description:description.value})});if(r.ok){donationForm.reset();await stats();await load()}else alert((await r.json()).message||'Please login first')}
+function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function logout(){await fetch('/api/auth/logout',{method:'POST'});location.href='/'}
+stats();load();
+</script></body></html>
